@@ -70,8 +70,8 @@ class Business(db.Model):
     apikey = db.relationship('Apikey', back_populates='business')
 
     def createBusiness( _business_name, _email, _phone, _digital_address, _address, _business_account_status):
-        new_user = User( email=_email, phone=_phone, digital_address=_digital_address, address=_address, business_account_status=_business_account_status, created_by=_email, updated_by=_email )
-        db.session.add(new_user)
+        new_business = Business( email=_email, phone=_phone, digital_address=_digital_address, address=_address, business_account_status=_business_account_status, created_by=_email, updated_by=_email )
+        db.session.add(new_business)
         db.session.commit()
 
 
