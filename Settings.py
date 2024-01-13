@@ -13,7 +13,7 @@ DB_URL = "postgresql://testdiv:l2CG6UOFM0YPjWlmh4drBMEGqr2bECcb@dpg-cm61rhocmk4c
 
 
 engine = create_engine(DB_URL)
-print(engine)
+# print(engine)
 # Example: Connect to the database and execute a simple query
 # with engine.connect() as connection:
 #     result = connection.execute ("SELECT '* From User'")

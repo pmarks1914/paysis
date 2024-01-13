@@ -1,4 +1,5 @@
 
+import email
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import defer
@@ -39,6 +40,11 @@ class User(db.Model):
     business_id = db.Column(db.String(36), db.ForeignKey('business.business_id'))
     # Define a relationship to access the Business object from a User object
     business = db.relationship('Business', back_populates='user')
+    
+    def createUser(_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role):
+        new_user = User( email=_email, password=_password, role=_role, phone=_phone, first_name=_first_name, last_name=_last_name, other_name=_other_name, business=_business_name, created_by=_email, updated_by=_email )
+        db.session.add(new_user)
+        db.session.commit()
 
 class Business(db.Model):
     __tablename__ = 'business'
@@ -62,6 +68,11 @@ class Business(db.Model):
     settlement = db.relationship('Settlement', back_populates='business')
     apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
     apikey = db.relationship('Apikey', back_populates='business')
+
+    def createBusiness( _business_name, _email, _phone, _digital_address, _address, _business_account_status):
+        new_user = User( email=_email, phone=_phone, digital_address=_digital_address, address=_address, business_account_status=_business_account_status, created_by=_email, updated_by=_email )
+        db.session.add(new_user)
+        db.session.commit()
 
 
 class Kyc(db.Model):
