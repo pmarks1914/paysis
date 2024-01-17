@@ -86,7 +86,7 @@ class User(db.Model):
     def createUser(_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, business_detail):
         user_id = str(uuid.uuid4())
         new_user = User( email=_email, password=_password, role=_role, phone=_phone, first_name=_first_name, last_name=_last_name, other_name=_other_name, created_by=_email, updated_by=_email, business_id=business_detail.business_id, id=user_id )
-
+ 
         try:
             # Start a new session
             with app.app_context():
