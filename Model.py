@@ -1,30 +1,49 @@
 
 import email
+from enum import unique
+from textwrap import indent
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import defer
-from sqlalchemy.orm import undefer
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import defer, undefer, relationship, load_only, sessionmaker
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 from Settings import app
 from datetime import datetime
 # from flask_script import Manager
 from flask_migrate import Migrate
 import json
-from sqlalchemy.orm import load_only
 # from sendEmail import Email 
 from sqlalchemy import ForeignKey
 import uuid
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+list_business_account_status = ['PENDING', 'APPROVED', 'REJECTED']
+
+
+def alchemy_to_json(obj):
+    if isinstance(obj.__class__, DeclarativeMeta):
+        # an SQLAlchemy class
+        fields = {}
+        for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+            data = obj.__getattribute__(field)
+            try:
+                # this will fail on non-encodable values, like other classes
+                json.dumps(data)
+                fields[field] = data
+            except TypeError:
+                # replace non-encodable values with their string representation
+                fields[field] = str(data)
+        # a json-encodable dict
+        return fields
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     role = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(80), nullable=True)
+    email = db.Column(db.String(80), unique=True, nullable=False)
     phone = db.Column(db.String(15), nullable=True) # datatype
     first_name = db.Column(db.String(80), nullable=True)
     last_name = db.Column(db.String(80), nullable=True)
@@ -41,16 +60,53 @@ class User(db.Model):
     # Define a relationship to access the Business object from a User object
     business = db.relationship('Business', back_populates='user')
     
-    def createUser(_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role):
-        new_user = User( email=_email, password=_password, role=_role, phone=_phone, first_name=_first_name, last_name=_last_name, other_name=_other_name, business=_business_name, created_by=_email, updated_by=_email )
-        db.session.add(new_user)
-        db.session.commit()
+    def json_1(self):
+        return {
+                'id': self.id,
+                'email': self.email,
+                'role': self.role,
+                'phone': self.phone, 
+                'first_name': self.first_name, 
+                'last_name': self.last_name, 
+                'other_name': self.other_name, 
+                'logo': self.logo, 
+                'account_type': self.account_type, 
+                'created_by': self.created_by,
+                'updated_by': self.updated_by,
+                'business_id': self.business_id, 
+                'created_on': self.created_on,
+                'updated_on': self.updated_on }
+
+    def getAllUsers(_email):
+        user_data = [User.json_1(user) for user in User.query.distinct(User.email).filter_by(email=_email) ] 
+        # user_data = User.query.filter_by(email=_email).first_or_404()
+        # user_json = json.dumps(user, default=alchemy_to_json, indent=2)
+        return user_data
+
+    def createUser(_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, business_detail):
+        user_id = str(uuid.uuid4())
+        new_user = User( email=_email, password=_password, role=_role, phone=_phone, first_name=_first_name, last_name=_last_name, other_name=_other_name, created_by=_email, updated_by=_email, business_id=business_detail.business_id, id=user_id )
+
+        try:
+            # Start a new session
+            with app.app_context():
+                db.session.add(new_user)
+                db.session.commit()
+                db.session.close()
+        except Exception as e:
+            # db.session.rollback()  # Rollback the transaction in case of an error
+            print(f"Error:: {e}")
+        finally:
+            # db.session.close()
+            pass
+        return new_user
+
 
 class Business(db.Model):
     __tablename__ = 'business'
     business_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     business_name = db.Column(db.String(80), nullable=True)
-    email = db.Column(db.String(80), nullable=True)
+    email = db.Column(db.String(80), unique=True, nullable=True)
     phone = db.Column(db.String(15), nullable=True)
     digital_address = db.Column(db.String(80), nullable=True)
     address = db.Column(db.String(80), nullable=True)
@@ -69,10 +125,33 @@ class Business(db.Model):
     apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
     apikey = db.relationship('Apikey', back_populates='business')
 
-    def createBusiness( _business_name, _email, _phone, _digital_address, _address, _business_account_status):
-        new_business = Business( email=_email, phone=_phone, digital_address=_digital_address, address=_address, business_account_status=_business_account_status, created_by=_email, updated_by=_email )
-        db.session.add(new_business)
-        db.session.commit()
+    def createBusiness( _business_name, _email, _phone, _digital_address, _address, _first_name, _last_name, _other_name, _password, _description, _role, _business_id):
+        user = User.query.filter_by(email=_email).first()
+        if user is None:
+            new_business = Business( business_name=_business_name, email=_email, phone=_phone, digital_address=_digital_address, address=_address, business_account_status=list_business_account_status[0], created_by=_email, updated_by=_email, business_id=_business_id )
+            try:
+                # db.session.add(new_business)
+                # db.session.commit()
+                with app.app_context():
+                    db.session.add(new_business)
+                    db.session.commit()
+                    # db.session.close()
+                    # print(" business_id >> ", new_business.business_id)
+                    # print( _first_name, _last_name, _other_name, _business_name)
+                    User.createUser( _first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, new_business)
+                
+                # (_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, business_detail)
+        
+                return new_business  # Return the created instance after commit
+            except Exception as e:
+                # db.session.rollback()  # Rollback the transaction in case of an error
+                print(f"Error: {e}")
+                return None  # Return None to indicate failure
+            finally:
+                # db.session.close()
+                return new_business
+        else:
+            return "user already"
 
 
 class Kyc(db.Model):
@@ -148,7 +227,7 @@ class Transaction(db.Model):
 
 
 
-app.app_context().push()
+# app.app_context().push()
 #     db.create_all()
 # for table in db.Model.metadata.tables.values():
 #     print(f"Table: {table.name}")
