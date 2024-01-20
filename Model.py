@@ -1,6 +1,7 @@
 
 import email
 from enum import unique
+import hashlib
 from textwrap import indent
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -77,11 +78,55 @@ class User(db.Model):
                 'created_on': self.created_on,
                 'updated_on': self.updated_on }
 
-    def getAllUsers(_email):
-        user_data = [User.json_1(user) for user in User.query.distinct(User.email).filter_by(email=_email) ] 
-        # user_data = User.query.filter_by(email=_email).first_or_404()
-        # user_json = json.dumps(user, default=alchemy_to_json, indent=2)
+    def getUserById(id):
+        user_data = db.session.query(User).filter(id==id).first()
         return user_data
+
+    def getAllUsers(_email):
+        joined_table_data = []
+        # user_data = db.session.query(User).filter_by(email=_email).join(Business).all()
+        user_data = db.session.query(User, Business).filter_by(email=_email).join(Business).all()
+
+        # get joined tables data
+        for user, business in user_data:
+            joined_table_data.append({
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'role': user.role,
+                    'phone': user.phone, 
+                    'first_name': user.first_name, 
+                    'last_name': user.last_name, 
+                    'other_name': user.other_name, 
+                    'logo': user.logo, 
+                    'account_type': user.account_type, 
+                    'created_by': user.created_by,
+                    'updated_by': user.updated_by,
+                    'business_id': user.business_id, 
+                    'created_on': user.created_on.strftime("%Y-%m-%d %H:%M:%S"),
+                    'updated_on': user.updated_on.strftime("%Y-%m-%d %H:%M:%S")
+                },
+                'business': {
+                    'business_name': business.business_name,
+                    'business_id': business.business_id,
+                    'business_name': business.business_name,
+                    'email': business.email,
+                    'phone': business.phone,
+                    'digital_address': business.digital_address,
+                    'address': business.address,
+                    'business_account_status': business.business_account_status,
+                    'created_by': business.created_by,
+                    'updated_by': business.updated_by,
+                    'created_on': business.created_on.strftime("%Y-%m-%d %H:%M:%S"),
+                    'updated_on': business.updated_on.strftime("%Y-%m-%d %H:%M:%S"),
+                    'kyc_id': business.kyc_id,
+                    'settlement_id': business.settlement_id,
+                    'apikey_id': business.apikey_id
+                }
+            })
+        # Convert the result to a JSON-formatted string
+        result_json = json.dumps(joined_table_data, indent=2)
+        return  result_json
 
     def createUser(_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, business_detail):
         user_id = str(uuid.uuid4())
@@ -101,7 +146,14 @@ class User(db.Model):
             pass
         return new_user
 
-
+    def update_user(_key, _value, _user_data):
+        if _key == 'password':
+            password = hashlib.sha256((_value).encode()).hexdigest()
+            # print(_key, _value, _user_data)
+            _user_data.password = password
+            print(password)
+            
+        db.session.commit()
 class Business(db.Model):
     __tablename__ = 'business'
     business_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -233,3 +285,11 @@ class Transaction(db.Model):
 #     print(f"Table: {table.name}")
 #     for column in table.c:
 #         print(f"  Column: {column.name}, Type: {column.type}")
+
+class Code(db.Model):
+    __tablename__ = 'code'
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    code = db.Column(db.String(80), nullable=True)
+    type = db.Column(db.String(80), nullable=True)
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)

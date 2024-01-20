@@ -1,8 +1,10 @@
+from crypt import methods
 import uuid
 from flask import Flask, jsonify, request, Response
 import requests, json
 #import geocoder
 from Model import Business, User, db
+from Notification.Email.sendEmail import send_notification_email
 # from sendEmail import Email 
 from Settings import *
 import jwt, datetime
@@ -20,7 +22,7 @@ from email.mime.text import MIMEText
 from dotenv import dotenv_values
 
 
-get_env = dotenv_values (".env")  
+get_env = dotenv_values(".env")  
 
 CORS(app)
 app.config['SECRET_KEY'] = get_env['SECRET_KEY']        
@@ -141,6 +143,68 @@ def add_user_registration():
         response = Response(json.dumps(invalidUserOjectErrorMsg), status=200, mimetype='application/json')
         return response
 
+@app.route('/v1/business/<string:id>', methods=['PATCH'])
+def update_resource(id):
+    # Fetch the resource from your data source (e.g., database)
+    resource = User.getUserById(id)
+
+    validate_list = ["id", "password"]
+    validate_status = False
+    msg = {}
+    if resource is None:
+        return jsonify({'error': 'Resource not found'}), 404
+    # Get the data from the request
+    data = request.get_json()
+    get_req_keys = None
+    get_req_keys_value_pair = None
+    # Update only the provided fields
+    for key, value in data.items():
+        if key in validate_list:
+            validate_status = True
+            if get_req_keys is None:
+                get_req_keys = key
+                get_req_keys_value_pair = f'"{key}": "{value}"'
+            else:
+                get_req_keys = f"{get_req_keys}, {key}"
+                get_req_keys_value_pair = f'{get_req_keys_value_pair}, "{key}": "{value}"'
+            try:
+                User.update_user(key, value, resource)
+                msg = {
+                        "code": 200,
+                        "msg": f"user detail(s) updated: {get_req_keys}",
+                        # "data": 'f{instance_dict}'
+                }
+            except Exception as e:
+                msg = {
+                    "code": 501,
+                    "error :" : str(e),
+                    "msg": "server error" 
+                }
+    # print(json.dumps(get_req_keys_value_pair))
+    if validate_status is False:
+        msg = {
+            "code": 201,
+            "msg": str(validate_list)
+        }
+    # print("resource", resource)
+
+    response = Response( json.dumps(msg), status=200, mimetype='application/json')
+    return response  
     
+
+@app.route('/v1/otp/email', methods=['POST'])
+def send_notification():
+    data = request.get_json()
+
+    to_email = data['email']
+    print(to_email)
+    subject = 'Notification Subject'
+    body = 'This is the body of the notification.'
+
+    if send_notification_email(to_email, subject, body):
+        return 'Notification sent successfully!'
+    else:
+        return 'Failed to send notification.'
+
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
