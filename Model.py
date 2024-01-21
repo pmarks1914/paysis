@@ -291,5 +291,23 @@ class Code(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     code = db.Column(db.String(80), nullable=True)
     type = db.Column(db.String(80), nullable=True)
+    account = db.Column(db.String(80), nullable=True)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+    def createCode(_email, _code, _type):
+        _id = str(uuid.uuid4())
+        new_data = Code( account=_email, code=_code, type=_type, id=_id )
+        try:
+            # Start a new session
+            with app.app_context():
+                db.session.add(new_data)
+                db.session.commit()
+        except Exception as e:
+            # db.session.rollback()  # Rollback the transaction in case of an error
+            print(f"Error:: {e}")
+        finally:
+            db.session.close()
+            pass
+        return new_data

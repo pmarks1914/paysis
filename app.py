@@ -2,8 +2,9 @@ from crypt import methods
 import uuid
 from flask import Flask, jsonify, request, Response, render_template
 import requests, json
+from Helper.helper import generate_random_code
 #import geocoder
-from Model import Business, User, db
+from Model import Business, User, Code, db
 from Notification.Email.sendEmail import send_notification_email
 # from sendEmail import Email 
 from Settings import *
@@ -33,12 +34,33 @@ app.config['SECRET_KEY'] = get_env['SECRET_KEY']
 def testd():
     try:
         print((request.json)['test'] )
-        user = User.getAllUsers((request.json)['email'])
-        return user
+        # user = User.getAllUsers((request.json)['email'])
+
+        msg = {
+            "code": 200,
+            "helpString": 'Successful'
+        }
+        response = Response( json.dumps(msg), status=200, mimetype='application/json')
+        return response    
     except Exception as e:
         # print(e)
         return {"tes": str(e)}
 
+@app.route('/v1/callback/mfs', methods=['POST'])
+def callbackMfs():
+    try:
+        request_data = request.json
+        print("mfs callback >>> ", request_data )
+        msg = {
+            "code": 200,
+            "helpString": 'Successful',
+            "data": request_data
+        }
+        response = Response( json.dumps(msg), status=200, mimetype='application/json')
+        return response 
+    except Exception as e:
+        # print(e)
+        return {"tes": str(e)}
 
 @app.route('/login', methods=['POST'])
 def get_token():
@@ -195,23 +217,21 @@ def update_resource(id):
 @app.route('/v1/otp/email', methods=['POST'])
 def send_notification():
     data = request.get_json()
-
     to_email = data['email']
     print(to_email)
     subject = 'Notification Subject'
-    body = 'This is the body of the notification.'
-
     users = User.query.filter_by(email=to_email).first()
     print(users)
     try:
         if users:
-            user_obj = [{
-                "id": users.id,
-                "email": users.email
-            }]
-            print(user_obj)
-            render_html = render_template('email.html', users=users)
-
+            # user_obj = [{
+            #     "id": users.id,
+            #     "email": users.email
+            # }]
+            # print(user_obj)
+            code = generate_random_code()
+            render_html = render_template('email.html', code=code)
+            Code.createCode(to_email, code, "OTP")
             if send_notification_email(to_email, subject, render_html):
                 return 'Notification sent successfully!'
             else:

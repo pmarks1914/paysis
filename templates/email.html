@@ -24,15 +24,13 @@
     <tr>
       <td>
         <h1>Your OTP Code</h1>
-
         <p>Use the code below</p>
-        <p>
+        <!-- <p>
             {% for user in users %}
                 <li>{{ user.id }} - {{ user.email }}</li>
             {% endfor %}
-        </p>
-
-        <p><a href="#" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none;">Call to Action Button</a></p>
+        </p> -->
+        <p><a href="#" style="background-color: #4CAF50; color: #fff; padding: 10px 20px; text-decoration: none;"> {{ code }} </a></p>
       </td>
     </tr>
   </table>
