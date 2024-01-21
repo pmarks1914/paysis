@@ -1,6 +1,6 @@
 from crypt import methods
 import uuid
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, render_template
 import requests, json
 #import geocoder
 from Model import Business, User, db
@@ -201,10 +201,26 @@ def send_notification():
     subject = 'Notification Subject'
     body = 'This is the body of the notification.'
 
-    if send_notification_email(to_email, subject, body):
-        return 'Notification sent successfully!'
-    else:
-        return 'Failed to send notification.'
+    users = User.query.filter_by(email=to_email).first()
+    print(users)
+    try:
+        if users:
+            user_obj = [{
+                "id": users.id,
+                "email": users.email
+            }]
+            print(user_obj)
+            render_html = render_template('email.html', users=users)
+
+            if send_notification_email(to_email, subject, render_html):
+                return 'Notification sent successfully!'
+            else:
+                return 'Failed to send notification.'
+        else:
+            return 'User does not exist'
+    except Exception as e:
+        return str(e)
+        pass
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
