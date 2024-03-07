@@ -224,11 +224,6 @@ def send_notification():
     print(users)
     try:
         if users:
-            # user_obj = [{
-            #     "id": users.id,
-            #     "email": users.email
-            # }]
-            # print(user_obj)
             code = generate_random_code()
             render_html = render_template('email.html', code=code)
             Code.createCode(to_email, code, "OTP")

@@ -16,7 +16,7 @@ app.config['MAIL_USE_SSL'] = get_env['MAIL_USE_SSL'].lower() != 'false'
 app.config['MAIL_USERNAME'] = get_env['MAIL_USERNAME']
 app.config['MAIL_PASSWORD'] = get_env['MAIL_PASSWORD']
 app.config['MAIL_DEFAULT_SENDER'] = get_env['MAIL_DEFAULT_SENDER']
-# app.config['DEBUG'] = True
+app.config['DEBUG'] = True
 
 def send_notification_email(to, subject, body):
     mail = Mail(app)    
