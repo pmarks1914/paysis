@@ -3,10 +3,10 @@ import os
 
 
 def fileUpload(request):
-    if 'file' not in request.files:
-        return 'No file part in the request'
+    if 'cert' not in request.files:
+        return 'No cert part in the request'
 
-    file = request.files['file']
+    file = request.files['cert']
 
     if file.filename == '':
         return 'No selected file'
@@ -20,7 +20,6 @@ def fileUpload(request):
 
         # Determine the file type
         file_type, encoding = mimetypes.guess_type(os.path.join(upload_folder, file.filename))
-        print(" file_type ", file_type.split('/')[1])
         new_filename = 'myfile123' + '.' + file_type.split('/')[1]
         # file_path = os.path.join(upload_folder, new_filename)
         # file.save(file_path)
