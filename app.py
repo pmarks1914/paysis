@@ -3,6 +3,7 @@ import uuid
 from flask import Flask, jsonify, request, Response, render_template
 import requests, json
 from Helper.helper import generate_random_code
+from fileManager.fileManager import fileUpload
 #import geocoder
 from Model import Business, User, Code, db
 from Notification.Email.sendEmail import send_notification_email
@@ -236,6 +237,15 @@ def send_notification():
     except Exception as e:
         return str(e)
         pass
+
+
+@app.route('/')
+def index():
+    return render_template('/fileUpload.html')
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    return fileUpload(request)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
