@@ -22,9 +22,7 @@ def send_notification_email(to, subject, body):
     mail = Mail(app)    
     with app.app_context():
         # print(users.id)
-        # render_html = render_template('../../templates/email.html', users="users")
         message = Message(subject, recipients=[to], html=body)
-        # message.body = body
         try:
             mail.send(message)
             return True

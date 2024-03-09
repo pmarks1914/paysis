@@ -172,6 +172,8 @@ class Business(db.Model):
 
     kyc_id = db.Column(db.String(36), db.ForeignKey('kyc.kyc_id'))
     kyc = db.relationship('Kyc', back_populates='business')
+    file_id = db.Column(db.String(36), db.ForeignKey('file.id'))
+    file = db.relationship('File', back_populates='business')
     settlement_id = db.Column(db.String(36), db.ForeignKey('settlement.settlement_id'))
     settlement = db.relationship('Settlement', back_populates='business')
     apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
@@ -311,3 +313,14 @@ class Code(db.Model):
             db.session.close()
             pass
         return new_data
+
+class File(db.Model):
+    __tablename__ = 'file'
+    id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
+    file = db.Column(db.String(80), nullable=True)
+    description = db.Column(db.String(80), nullable=True)
+    business = db.relationship('Business', back_populates='file')
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
