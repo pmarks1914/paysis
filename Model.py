@@ -136,14 +136,13 @@ class User(db.Model):
             # Start a new session
             with app.app_context():
                 db.session.add(new_user)
-                db.session.commit()
-                db.session.close()
         except Exception as e:
             # db.session.rollback()  # Rollback the transaction in case of an error
             print(f"Error:: {e}")
         finally:
             # db.session.close()
-            pass
+            db.session.commit()
+            db.session.close()
         return new_user
 
     def update_user(_key, _value, _user_data):
@@ -172,8 +171,8 @@ class Business(db.Model):
 
     kyc_id = db.Column(db.String(36), db.ForeignKey('kyc.kyc_id'))
     kyc = db.relationship('Kyc', back_populates='business')
-    file_id = db.Column(db.String(36), db.ForeignKey('file.id'))
-    file = db.relationship('File', back_populates='business')
+    file_id = db.Column(db.String(36), db.ForeignKey('file.id'), nullable=True)
+    file = db.relationship('Fileupload', back_populates='business')
     settlement_id = db.Column(db.String(36), db.ForeignKey('settlement.settlement_id'))
     settlement = db.relationship('Settlement', back_populates='business')
     apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
@@ -192,10 +191,7 @@ class Business(db.Model):
                     # db.session.close()
                     # print(" business_id >> ", new_business.business_id)
                     # print( _first_name, _last_name, _other_name, _business_name)
-                    User.createUser( _first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, new_business)
-                
-                # (_first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, business_detail)
-        
+                    User.createUser( _first_name, _last_name, _other_name, _business_name, _password, _email, _phone, _description, _role, _digital_address, _address, new_business)        
                 return new_business  # Return the created instance after commit
             except Exception as e:
                 # db.session.rollback()  # Rollback the transaction in case of an error
@@ -297,7 +293,6 @@ class Code(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
-
     def createCode(_email, _code, _type):
         _id = str(uuid.uuid4())
         new_data = Code( account=_email, code=_code, type=_type, id=_id )
@@ -305,16 +300,16 @@ class Code(db.Model):
             # Start a new session
             with app.app_context():
                 db.session.add(new_data)
-                db.session.commit()
         except Exception as e:
             # db.session.rollback()  # Rollback the transaction in case of an error
             print(f"Error:: {e}")
         finally:
+            db.session.commit()
             db.session.close()
             pass
         return new_data
 
-class File(db.Model):
+class Fileupload(db.Model):
     __tablename__ = 'file'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
     file = db.Column(db.String(80), nullable=True)
@@ -322,5 +317,21 @@ class File(db.Model):
     business = db.relationship('Business', back_populates='file')
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def createFile(_file, _description, _business):
+        _id = str(uuid.uuid4())
+        # print(_id, _file)
+        new_data = Fileupload( file=_file, description=_description, id=_id )
+        try:
+            # Start a new session
+            with app.app_context():
+                db.session.add(new_data)
+        except Exception as e:
+            db.session.rollback()  # Rollback the transaction in case of an error
+            return str(e)
+        finally:
+            db.session.commit()
+            db.session.close()
+        return new_data
 
 
