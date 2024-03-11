@@ -5,7 +5,7 @@ import requests, json
 from Helper.helper import generate_random_code
 from fileManager.fileManager import fileUpload
 #import geocoder
-from Model import Business, User, Code, db
+from Model import Business, User, Code, db, Fileupload
 from Notification.Email.sendEmail import send_notification_email
 # from sendEmail import Email 
 from Settings import *
@@ -246,6 +246,12 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     return fileUpload(request)
+@app.route('/upload/<string:id>', methods=['PATCH', 'GET'])
+def uploadUpdate(id):
+    if request.method == 'GET':
+        return Fileupload.getFileById(id)
+    if request.method == 'PATCH':
+        return fileUpload(request, id)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)

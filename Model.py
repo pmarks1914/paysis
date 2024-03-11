@@ -28,12 +28,16 @@ def alchemy_to_json(obj):
     if isinstance(obj.__class__, DeclarativeMeta):
         # an SQLAlchemy class
         fields = {}
-        for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+        exclude_fields = [ "query", "registry", "query_class"]
+
+        for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata' and x not in exclude_fields]:
             data = obj.__getattribute__(field)
             try:
-                # this will fail on non-encodable values, like other classes
-                json.dumps(data)
-                fields[field] = data
+                # Check if the attribute is a method, if so, skip it
+                if not callable(data):
+                    # this will fail on non-encodable values, like other classes
+                    json.dumps(data)
+                    fields[field] = data
             except TypeError:
                 # replace non-encodable values with their string representation
                 fields[field] = str(data)
@@ -318,6 +322,13 @@ class Fileupload(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    def getFileById(id):
+        new_data = db.session.query(Fileupload).filter(id==id).first()
+        print(new_data)
+        if new_data:
+            return alchemy_to_json(new_data)
+        
+
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
         # print(_id, _file)
@@ -326,12 +337,27 @@ class Fileupload(db.Model):
             # Start a new session
             with app.app_context():
                 db.session.add(new_data)
+                db.session.commit()
+                # Refresh the instance to make sure attributes are up-to-date
+                db.session.refresh(new_data)
         except Exception as e:
             db.session.rollback()  # Rollback the transaction in case of an error
-            return str(e)
+            # return str(e)
         finally:
-            db.session.commit()
             db.session.close()
         return new_data
 
+
+    def updateFile(file, description, business, id):
+        print(">>>>>>>>", id, db.session.query(Fileupload).filter(id==id).first())
+        # new_data = Fileupload.getFileById(id)
+        new_data = Fileupload.query.filter_by(id=id).first()
+        if file:
+            new_data.file = file
+        if description:
+            new_data.description = description
+        db.session.commit()
+        print(">>>", new_data.updated_on)
+        # db.session.close()
+        return alchemy_to_json(new_data)
 
