@@ -182,6 +182,12 @@ class Business(db.Model):
     apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
     apikey = db.relationship('Apikey', back_populates='business')
 
+    def getBusinessById(id):
+        new_data = db.session.query(Business).filter(id==id).first()
+        # print(new_data)
+        if new_data:
+            return alchemy_to_json(new_data)
+
     def createBusiness( _business_name, _email, _phone, _digital_address, _address, _first_name, _last_name, _other_name, _password, _description, _role, _business_id):
         user = User.query.filter_by(email=_email).first()
         if user is None:
