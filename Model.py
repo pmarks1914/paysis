@@ -154,7 +154,7 @@ class User(db.Model):
             password = hashlib.sha256((_value).encode()).hexdigest()
             # print(_key, _value, _user_data)
             _user_data.password = password
-            print(password)
+            # print(password)
             
         db.session.commit()
 class Business(db.Model):
@@ -324,7 +324,7 @@ class Fileupload(db.Model):
 
     def getFileById(id):
         new_data = db.session.query(Fileupload).filter(id==id).first()
-        print(new_data)
+        # print(new_data)
         if new_data:
             return alchemy_to_json(new_data)
         
@@ -349,7 +349,7 @@ class Fileupload(db.Model):
 
 
     def updateFile(file, description, business, id):
-        print(">>>>>>>>", id, db.session.query(Fileupload).filter(id==id).first())
+        # print(">>>>>>>>", id, db.session.query(Fileupload).filter(id==id).first())
         # new_data = Fileupload.getFileById(id)
         new_data = Fileupload.query.filter_by(id=id).first()
         if file:
@@ -357,7 +357,7 @@ class Fileupload(db.Model):
         if description:
             new_data.description = description
         db.session.commit()
-        print(">>>", new_data.updated_on)
+        # print(">>>", new_data.updated_on)
         # db.session.close()
         return alchemy_to_json(new_data)
 
