@@ -213,7 +213,8 @@ class Business(db.Model):
         else:
             return "user already"
 
-
+    def updateBusinessById(request, id):
+        pass
 class Kyc(db.Model):
     __tablename__ = 'kyc'
     kyc_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
