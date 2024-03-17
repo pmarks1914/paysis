@@ -2,6 +2,7 @@
 import email
 from enum import unique
 import hashlib
+import re
 from textwrap import indent
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -23,26 +24,36 @@ migrate = Migrate(app, db)
 
 list_business_account_status = ['PENDING', 'APPROVED', 'REJECTED']
 
-
-def alchemy_to_json(obj):
+def alchemy_to_json(obj, visited=None):
+    if visited is None:
+        visited = set()
+    if obj in visited:
+        return None  # Prevent infinite recursion
+    visited.add(obj)
     if isinstance(obj.__class__, DeclarativeMeta):
-        # an SQLAlchemy class
         fields = {}
-        exclude_fields = [ "query", "registry", "query_class"]
-
+        exclude_fields = ["query", "registry", "query_class", "password", "apikey", "business"]
         for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata' and x not in exclude_fields]:
             data = obj.__getattribute__(field)
             try:
-                # Check if the attribute is a method, if so, skip it
                 if not callable(data):
-                    # this will fail on non-encodable values, like other classes
-                    json.dumps(data)
-                    fields[field] = data
+                    # Check if the attribute is an instance of a SQLAlchemy model                    
+                    if isinstance(data.__class__, DeclarativeMeta):
+                        # Handle file relationship
+                        fields[field] = alchemy_to_json(data, visited)
+                    elif isinstance(data, list) and data and isinstance(data[0].__class__, DeclarativeMeta):
+                        # Handle nested objects
+                        fields[field] = [alchemy_to_json(item, visited) for item in data]
+                    else:
+                        # this will fail on non-encodable values, like other classes
+                        json.dumps(data)
+                        fields[field] = data
+                else:
+                    pass
             except TypeError:
-                # replace non-encodable values with their string representation
                 fields[field] = str(data)
-        # a json-encodable dict
         return fields
+
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -65,7 +76,7 @@ class User(db.Model):
     # Define a relationship to access the Business object from a User object
     business = db.relationship('Business', back_populates='user')
     
-    def json_1(self):
+    def json(self):
         return {
                 'id': self.id,
                 'email': self.email,
@@ -81,6 +92,22 @@ class User(db.Model):
                 'business_id': self.business_id, 
                 'created_on': self.created_on,
                 'updated_on': self.updated_on }
+    def _repr_(self):
+        return json.dumps({
+                'id': self.id,
+                'email': self.email,
+                'role': self.role,
+                'phone': self.phone, 
+                'first_name': self.first_name, 
+                'last_name': self.last_name, 
+                'other_name': self.other_name, 
+                'logo': self.logo, 
+                'account_type': self.account_type, 
+                'created_by': self.created_by,
+                'updated_by': self.updated_by,
+                'business_id': self.business_id, 
+                'created_on': self.created_on,
+                'updated_on': self.updated_on })
 
     def getUserById(id):
         user_data = db.session.query(User).filter(id==id).first()
@@ -183,10 +210,15 @@ class Business(db.Model):
     apikey = db.relationship('Apikey', back_populates='business')
 
     def getBusinessById(id):
-        new_data = db.session.query(Business).filter(id==id).first()
+        new_data = Business.query.filter_by(business_id=id).first()
+        # Render nested objects
+        new_data_object = alchemy_to_json(new_data)
+        return new_data_object
         # print(new_data)
-        if new_data:
-            return alchemy_to_json(new_data)
+        # if new_data:
+        #     new_data_object = alchemy_to_json(new_data)
+        #     print(">>>", (new_data) )
+        #     return new_data_object
 
     def createBusiness( _business_name, _email, _phone, _digital_address, _address, _first_name, _last_name, _other_name, _password, _description, _role, _business_id):
         user = User.query.filter_by(email=_email).first()
@@ -214,7 +246,24 @@ class Business(db.Model):
             return "user already"
 
     def updateBusinessById(request, id):
-        pass
+
+        new_data = Business.query.filter_by(business_id=id).first()
+        print(request)
+        if request['business_name'] :
+            new_data.business_name = request['business_name']
+        if request['email'] :
+            new_data.email = request['email']
+        if request['phone'] :
+            new_data.phone = request['phone']
+        if request['digital_address'] :
+            new_data.digital_address = request['digital_address']
+        if request['address'] :
+            new_data.address = request['address']
+        if request['business_account_status'] :
+            new_data.business_account_status = request['business_account_status']
+        db.session.commit()
+        # db.session.close()
+        return alchemy_to_json(new_data)
 class Kyc(db.Model):
     __tablename__ = 'kyc'
     kyc_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -364,7 +413,7 @@ class Fileupload(db.Model):
         if description:
             new_data.description = description
         db.session.commit()
-        # print(">>>", new_data.updated_on)
+        print(">>>", new_data.updated_on)
         # db.session.close()
         return alchemy_to_json(new_data)
 

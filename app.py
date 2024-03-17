@@ -114,7 +114,7 @@ def add_user_registration():
                     # db.session.commit()
                     # db.session.close()
 
-                    print("business_detail >>", business_detail)
+                    # print("business_detail >>", business_detail)
                     msg = {
                             "code": 200,
                             "msg": "user added",
@@ -258,7 +258,8 @@ def business(id):
     if request.method == 'GET':
         return Business.getBusinessById(id)
     if request.method == 'PATCH':
-        return Business.updateBusinessById(request, id)
+        request_data = request.get_json()
+        return Business.updateBusinessById(request_data, id)
 
 
 if __name__ == "__main__":
