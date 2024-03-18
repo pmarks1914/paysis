@@ -5,7 +5,7 @@ import requests, json
 from Helper.helper import generate_random_code
 from fileManager.fileManager import fileUpload
 #import geocoder
-from Model import Business, User, Code, db, Fileupload
+from Model import Business, User, Code, db, Fileupload, Business
 from Notification.Email.sendEmail import send_notification_email
 # from sendEmail import Email 
 from Settings import *
@@ -114,7 +114,7 @@ def add_user_registration():
                     # db.session.commit()
                     # db.session.close()
 
-                    print("business_detail >>", business_detail)
+                    # print("business_detail >>", business_detail)
                     msg = {
                             "code": 200,
                             "msg": "user added",
@@ -252,6 +252,15 @@ def uploadUpdate(id):
         return Fileupload.getFileById(id)
     if request.method == 'PATCH':
         return fileUpload(request, id)
+
+@app.route('/business/<string:id>', methods=['PATCH', 'GET'])
+def business(id):
+    if request.method == 'GET':
+        return Business.getBusinessById(id)
+    if request.method == 'PATCH':
+        request_data = request.get_json()
+        return Business.updateBusinessById(request_data, id)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
