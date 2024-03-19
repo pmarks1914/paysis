@@ -111,7 +111,7 @@ class User(db.Model):
 
     def getUserById(id):
         user_data = db.session.query(User).filter(id==id).first()
-        return user_data
+        return alchemy_to_json(user_data)
 
     def getAllUsers(_email):
         joined_table_data = []

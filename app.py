@@ -89,6 +89,12 @@ def token_required(f):
             return jsonify({'error': 'Invalid Token', "status": 301 })
     return wrapper
 
+
+@app.route('/user/<string:id>', methods=['GET'])
+def user(id):
+    if request.method == 'GET':
+        return User.getUserById(id)
+
 @app.route('/v1/business/registration/', methods=['POST'])
 def add_user_registration():
     request_data = request.get_json()
@@ -214,7 +220,6 @@ def update_resource(id):
     response = Response( json.dumps(msg), status=200, mimetype='application/json')
     return response  
     
-
 @app.route('/v1/otp/email', methods=['POST'])
 def send_notification():
     data = request.get_json()
@@ -238,7 +243,6 @@ def send_notification():
         return str(e)
         pass
 
-
 @app.route('/')
 def index():
     return render_template('/fileUpload.html')
@@ -246,6 +250,7 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     return fileUpload(request)
+
 @app.route('/upload/<string:id>', methods=['PATCH', 'GET'])
 def uploadUpdate(id):
     if request.method == 'GET':
@@ -260,7 +265,6 @@ def business(id):
     if request.method == 'PATCH':
         request_data = request.get_json()
         return Business.updateBusinessById(request_data, id)
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
