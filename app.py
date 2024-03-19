@@ -51,7 +51,7 @@ def testd():
 def callbackMfs():
     try:
         request_data = request.json
-        print("mfs callback >>> ", request_data )
+        # print("mfs callback >>> ", request_data )
         msg = {
             "code": 200,
             "helpString": 'Successful',
@@ -89,12 +89,24 @@ def token_required(f):
             return jsonify({'error': 'Invalid Token', "status": 301 })
     return wrapper
 
-
 @app.route('/user/<string:id>', methods=['GET'])
 def user(id):
     if request.method == 'GET':
-        return User.getUserById(id)
-
+        try:
+            request_data = User.getUserById(id)
+            # print("mfs callback >>> ", request_data )
+            msg = {
+                "code": 200,
+                "message": 'Successful',
+                "data": request_data
+            }
+            response = Response( json.dumps(msg), status=200, mimetype='application/json')
+            return response 
+        except Exception as e:
+            # print(e)
+            return {"code": 203, "message": 'Failed', "tes": str(e)}
+    else:
+        return {"code": 400, "message": 'Failed' }
 @app.route('/v1/business/registration/', methods=['POST'])
 def add_user_registration():
     request_data = request.get_json()
