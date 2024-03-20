@@ -104,9 +104,10 @@ def user(id):
             return response 
         except Exception as e:
             # print(e)
-            return {"code": 203, "message": 'Failed', "tes": str(e)}
+            return {"code": 203, "message": 'Failed', "error": str(e)}
     else:
         return {"code": 400, "message": 'Failed' }
+        
 @app.route('/v1/business/registration/', methods=['POST'])
 def add_user_registration():
     request_data = request.get_json()

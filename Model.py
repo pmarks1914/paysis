@@ -110,8 +110,9 @@ class User(db.Model):
                 'updated_on': self.updated_on })
 
     def getUserById(id):
-        user_data = db.session.query(User).filter(id==id).first()
-        return alchemy_to_json(user_data)
+        new_data = User.query.filter_by(id=id).first()
+        new_data_object = alchemy_to_json(new_data)
+        return new_data_object
 
     def getAllUsers(_email):
         joined_table_data = []
