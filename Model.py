@@ -215,11 +215,6 @@ class Business(db.Model):
         # Render nested objects
         new_data_object = alchemy_to_json(new_data)
         return new_data_object
-        # print(new_data)
-        # if new_data:
-        #     new_data_object = alchemy_to_json(new_data)
-        #     print(">>>", (new_data) )
-        #     return new_data_object
 
     def createBusiness( _business_name, _email, _phone, _digital_address, _address, _first_name, _last_name, _other_name, _password, _description, _role, _business_id):
         user = User.query.filter_by(email=_email).first()
@@ -305,7 +300,7 @@ class Apikey(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     business = db.relationship('Business', back_populates='apikey')
-    transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
+    # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
     transaction = db.relationship('Transaction', back_populates='apikey')
 
 
@@ -336,14 +331,21 @@ class Transaction(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     apikey = db.relationship('Apikey', back_populates='transaction')
 
-
-
-# app.app_context().push()
-#     db.create_all()
-# for table in db.Model.metadata.tables.values():
-#     print(f"Table: {table.name}")
-#     for column in table.c:
-#         print(f"  Column: {column.name}, Type: {column.type}")
+    def createTransaction(_amount, _currency, ):
+        user_id = str(uuid.uuid4())
+        new_data = User( amount=_amount)
+ 
+        try:
+            # Start a new session
+            with app.app_context():
+                db.session.add(new_data)
+        except Exception as e:
+            print(f"Error:: {e}")
+        finally:
+            # db.session.close()
+            db.session.commit()
+            db.session.close()
+        return new_data
 
 class Code(db.Model):
     __tablename__ = 'code'
@@ -407,7 +409,6 @@ class Fileupload(db.Model):
 
     def updateFile(file, description, business, id):
         # print(">>>>>>>>", id, db.session.query(Fileupload).filter(id==id).first())
-        # new_data = Fileupload.getFileById(id)
         new_data = Fileupload.query.filter_by(id=id).first()
         if file:
             new_data.file = file
