@@ -113,12 +113,9 @@ def add_user_registration():
     request_data = request.get_json()
     msg = {}
     # print("fff")
-
     role = 'BUSINESS' # user role
     try:
-        password = hashlib.sha256((request_data['password']).encode()).hexdigest()
-        
-        
+        password = hashlib.sha256((request_data['password']).encode()).hexdigest()  
         if User.query.filter_by(email=request_data['email']).first() is None:
             # if request_data['password'] request_data['email']     
             if request_data['type'] == "BUSINESS":
@@ -126,7 +123,6 @@ def add_user_registration():
                     business_id = str(uuid.uuid4())
 
                     business_detail = Business.createBusiness( request_data['business_name'], request_data['email'], request_data['phone'], request_data['digital_address'], request_data['address'], request_data['first_name'], request_data['last_name'], request_data['other_name'], password, request_data['description'], role, business_id)
-
                     # business_detail = Business( business_name=request_data['business_name'], email=request_data['email'], phone=request_data['phone'], digital_address=request_data['digital_address'], address=request_data['address'], business_account_status='PENDING', created_by=request_data['email'], updated_by=request_data['email'] )
                     # db.session.add(business_detail)
                     # print("===<<<>>>===")
