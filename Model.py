@@ -2,6 +2,7 @@
 import email
 from enum import unique
 import hashlib
+from locale import currency
 import re
 from textwrap import indent
 from flask import Flask, jsonify
@@ -319,8 +320,6 @@ class Transaction(db.Model):
     apikey_reference = db.Column(db.String(422), nullable=True)
     external_service_provider = db.Column(db.String(255), nullable=True)
     channel = db.Column(db.String(255), nullable=True)
-    status_code = db.Column(db.String(50), nullable=True)
-    status_message = db.Column(db.String(50), nullable=True)
     status = db.Column(db.String(50), nullable=True)
     note = db.Column(db.String(255), nullable=True)
     service = db.Column(db.String(255), nullable=True)
@@ -331,10 +330,9 @@ class Transaction(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     apikey = db.relationship('Apikey', back_populates='transaction')
 
-    def createTransaction(_amount, _currency, ):
-        user_id = str(uuid.uuid4())
-        new_data = User( amount=_amount)
- 
+    def createTransaction(_amount, _currency, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
+        transaction_id = str(uuid.uuid4())
+        new_data = Transaction( transaction_id=transaction_id, amount=_amount, currency=_currency, note=_note, service=_service, source_metadata=str(_source_metadata), destination_metadata=str(_destination_metadata), apikey_reference=_apikey_reference ) 
         try:
             # Start a new session
             with app.app_context():
