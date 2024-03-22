@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import defer, undefer, relationship, load_only, sessionmaker
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
+from Helper.helper import generate_transaction_referance
 from Settings import app
 from datetime import datetime
 # from flask_script import Manager
@@ -24,6 +25,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 list_business_account_status = ['PENDING', 'APPROVED', 'REJECTED']
+list_transaction_status = ['PENDING', 'SUCCESSFULL', 'FAILED']
 
 def alchemy_to_json(obj, visited=None):
     if visited is None:
@@ -330,9 +332,10 @@ class Transaction(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     apikey = db.relationship('Apikey', back_populates='transaction')
 
-    def createTransaction(_amount, _currency, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
+    def createTransaction(_amount, _currency, _channel, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
         transaction_id = str(uuid.uuid4())
-        new_data = Transaction( transaction_id=transaction_id, amount=_amount, currency=_currency, note=_note, service=_service, source_metadata=str(_source_metadata), destination_metadata=str(_destination_metadata), apikey_reference=_apikey_reference ) 
+        transaction_reference = generate_transaction_referance()
+        new_data = Transaction( transaction_id=transaction_id, transaction_reference=transaction_reference, amount=_amount, currency=_currency, channel=_channel, status=list_transaction_status[0], note=_note, service=_service, source_metadata=str(_source_metadata), destination_metadata=str(_destination_metadata), apikey_reference=_apikey_reference ) 
         try:
             # Start a new session
             with app.app_context():
