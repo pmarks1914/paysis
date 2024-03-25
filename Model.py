@@ -332,6 +332,12 @@ class Transaction(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     apikey = db.relationship('Apikey', back_populates='transaction')
 
+    def getTransactionById(id):
+        new_data = Transaction.query.filter_by(transaction_id=id).first()
+        # Render nested objects
+        new_data_object = alchemy_to_json(new_data)
+        return new_data_object
+
     def createTransaction(_amount, _currency, _channel, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
         transaction_id = str(uuid.uuid4())
         transaction_reference = generate_transaction_referance()
