@@ -303,8 +303,8 @@ class Apikey(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     business = db.relationship('Business', back_populates='apikey')
-    # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
     transaction = db.relationship('Transaction', back_populates='apikey')
+    # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
 
 
 transaction_type = ["Credit", "Debit"]
@@ -319,7 +319,7 @@ class Transaction(db.Model):
     tax = db.Column(db.String(12), nullable=True)
     source_metadata = db.Column(db.String(422), nullable=True)
     destination_metadata = db.Column(db.String(422), nullable=True)
-    apikey_reference = db.Column(db.String(422), nullable=True)
+    # apikey_reference = db.Column(db.String(422), nullable=True)
     external_service_provider = db.Column(db.String(255), nullable=True)
     channel = db.Column(db.String(255), nullable=True)
     status = db.Column(db.String(50), nullable=True)
@@ -330,7 +330,9 @@ class Transaction(db.Model):
     updated_by = db.Column(db.String(80), nullable=True)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
     apikey = db.relationship('Apikey', back_populates='transaction')
+
 
     def getTransactionById(id, page=1, per_page=10):
         # Determine the page and number of items per page from the request (if provided)
