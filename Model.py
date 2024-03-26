@@ -303,8 +303,8 @@ class Apikey(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     business = db.relationship('Business', back_populates='apikey')
-    # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
     transaction = db.relationship('Transaction', back_populates='apikey')
+    # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
 
 
 transaction_type = ["Credit", "Debit"]
@@ -319,7 +319,7 @@ class Transaction(db.Model):
     tax = db.Column(db.String(12), nullable=True)
     source_metadata = db.Column(db.String(422), nullable=True)
     destination_metadata = db.Column(db.String(422), nullable=True)
-    apikey_reference = db.Column(db.String(422), nullable=True)
+    # apikey_reference = db.Column(db.String(422), nullable=True)
     external_service_provider = db.Column(db.String(255), nullable=True)
     channel = db.Column(db.String(255), nullable=True)
     status = db.Column(db.String(50), nullable=True)
@@ -330,23 +330,48 @@ class Transaction(db.Model):
     updated_by = db.Column(db.String(80), nullable=True)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
     apikey = db.relationship('Apikey', back_populates='transaction')
 
+
+    def getTransactionById(id, page=1, per_page=10):
+        # Determine the page and number of items per page from the request (if provided)
+        # page = int(request.args.get('page', page))
+        # per_page = int(request.args.get('per_page', per_page))
+        
+        # Query the database with pagination
+        pagination = Transaction.query.filter_by(transaction_id=id).paginate(page, per_page, error_out=False)
+        # Extract the items for the current page
+        transactions = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(transaction) for transaction in transactions]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'transactions': new_data_object,
+            'pagination': pagination_data
+        }
+
     def createTransaction(_amount, _currency, _channel, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
-        transaction_id = str(uuid.uuid4())
-        transaction_reference = generate_transaction_referance()
-        new_data = Transaction( transaction_id=transaction_id, transaction_reference=transaction_reference, amount=_amount, currency=_currency, channel=_channel, status=list_transaction_status[0], note=_note, service=_service, source_metadata=str(_source_metadata), destination_metadata=str(_destination_metadata), apikey_reference=_apikey_reference ) 
-        try:
-            # Start a new session
-            with app.app_context():
-                db.session.add(new_data)
-        except Exception as e:
-            print(f"Error:: {e}")
-        finally:
-            # db.session.close()
-            db.session.commit()
-            db.session.close()
-        return new_data
+            transaction_id = str(uuid.uuid4())
+            transaction_reference = generate_transaction_referance()
+            new_data = Transaction( transaction_id=transaction_id, transaction_reference=transaction_reference, amount=_amount, currency=_currency, channel=_channel, status=list_transaction_status[0], note=_note, service=_service, source_metadata=str(_source_metadata), destination_metadata=str(_destination_metadata), apikey_reference=_apikey_reference ) 
+            try:
+                # Start a new session
+                with app.app_context():
+                    db.session.add(new_data)
+            except Exception as e:
+                print(f"Error:: {e}")
+            finally:
+                # db.session.close()
+                db.session.commit()
+                db.session.close()
+            return new_data
 
 class Code(db.Model):
     __tablename__ = 'code'
