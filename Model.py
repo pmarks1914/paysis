@@ -333,18 +333,17 @@ class Transaction(db.Model):
     apikey_id = db.Column(db.String(36), db.ForeignKey('apikey.apikey_id'))
     apikey = db.relationship('Apikey', back_populates='transaction')
 
-
-    def getTransactionById(id, page=1, per_page=10):
+    def getTransactionById(id, page=1, per_page=2):        
         # Determine the page and number of items per page from the request (if provided)
         # page = int(request.args.get('page', page))
         # per_page = int(request.args.get('per_page', per_page))
-        
         # Query the database with pagination
-        pagination = Transaction.query.filter_by(transaction_id=id).paginate(page, per_page, error_out=False)
+        pagination = Business.query.filter_by(digital_address=id).paginate(page=page, per_page=per_page, error_out=False)
+
         # Extract the items for the current page
-        transactions = pagination.items
+        new_data = pagination.items
         # Render nested objects
-        new_data_object = [alchemy_to_json(transaction) for transaction in transactions]
+        new_data_object = [alchemy_to_json(item) for item in new_data]
         # Prepare pagination information to be returned along with the data
         pagination_data = {
             'total': pagination.total,
@@ -353,9 +352,10 @@ class Transaction(db.Model):
             'total_pages': pagination.pages
         }
         return {
-            'transactions': new_data_object,
+            'data': new_data_object,
             'pagination': pagination_data
         }
+
 
     def createTransaction(_amount, _currency, _channel, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
             transaction_id = str(uuid.uuid4())
@@ -412,7 +412,7 @@ class Fileupload(db.Model):
         # print(new_data)
         if new_data:
             return alchemy_to_json(new_data)
-        
+    
 
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
