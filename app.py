@@ -5,7 +5,7 @@ import requests, json
 from Helper.helper import generate_random_code
 from fileManager.fileManager import fileUpload
 #import geocoder
-from Model import Business, User, Code, db, Fileupload, Business
+from Model import Business, Transaction, User, Code, db, Fileupload, Business
 from Notification.Email.sendEmail import send_notification_email
 # from sendEmail import Email 
 from Settings import *
@@ -275,5 +275,24 @@ def business(id):
         request_data = request.get_json()
         return Business.updateBusinessById(request_data, id)
 
+@app.route('/transaction/<string:id>', methods=['GET'])
+def transaction(id):
+    if request.method == 'GET':
+        try:
+            request_data = Transaction.getTransactionById(id, request.args.get('page', 1), request.args.get('per_page', 1000) )
+            # print("mfs callback >>> ", request_data )
+            msg = {
+                "code": 200,
+                "message": 'Successful',
+                "data": request_data
+            }
+            response = Response( json.dumps(msg), status=200, mimetype='application/json')
+            return response 
+        except Exception as e:
+            # print(e)
+            return {"code": 203, "message": 'Failed', "error": str(e)}
+    else:
+        return {"code": 400, "message": 'Failed' }
+     
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
