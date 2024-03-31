@@ -307,6 +307,30 @@ class Apikey(db.Model):
     # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
 
 
+    def getApikey(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # page = int(request.args.get('page', page))
+        # per_page = int(request.args.get('per_page', per_page))
+        # Query the database with pagination
+        pagination = Apikey.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
+
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+
+
 transaction_type = ["Credit", "Debit"]
 
 class Transaction(db.Model):
