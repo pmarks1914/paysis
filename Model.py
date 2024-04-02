@@ -380,11 +380,27 @@ class Transaction(db.Model):
             'pagination': pagination_data
         }
 
+    # 
 
     def createTransaction(_amount, _currency, _channel, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
             transaction_id = str(uuid.uuid4())
             transaction_reference = generate_transaction_referance()
             new_data = Transaction( transaction_id=transaction_id, transaction_reference=transaction_reference, amount=_amount, currency=_currency, channel=_channel, status=list_transaction_status[0], note=_note, service=_service, source_metadata=str(_source_metadata), destination_metadata=str(_destination_metadata), apikey_reference=_apikey_reference ) 
+            try:
+                # Start a new session
+                with app.app_context():
+                    db.session.add(new_data)
+            except Exception as e:
+                print(f"Error:: {e}")
+            finally:
+                # db.session.close()
+                db.session.commit()
+                db.session.close()
+            return new_data
+    
+    def updateTransaction(_status):
+            new_data = Fileupload.query.filter_by(id=id).first()
+            new_data.status = _status
             try:
                 # Start a new session
                 with app.app_context():
