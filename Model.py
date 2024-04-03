@@ -306,7 +306,6 @@ class Apikey(db.Model):
     transaction = db.relationship('Transaction', back_populates='apikey')
     # transaction_id = db.Column(db.String(36), db.ForeignKey('transaction.transaction_id'))
 
-
     def getApikey(id, page=1, per_page=10):        
         # Determine the page and number of items per page from the request (if provided)
         # page = int(request.args.get('page', page))
@@ -379,8 +378,6 @@ class Transaction(db.Model):
             'data': new_data_object,
             'pagination': pagination_data
         }
-
-    # 
 
     def createTransaction(_amount, _currency, _channel, _note, _service, _source_metadata, _destination_metadata, _apikey_reference):
             transaction_id = str(uuid.uuid4())
