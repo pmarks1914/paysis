@@ -391,11 +391,11 @@ class Transaction(db.Model):
         pagination_data = {
             'total': pagination.total,
             'per_page': per_page,
-            'current_page': page,
+            # 'current_page': page,
             'total_pages': pagination.pages
         }
         return {
-            'data': new_data_object,
+            # 'data': new_data_object,
             'pagination': pagination_data
         }
 
