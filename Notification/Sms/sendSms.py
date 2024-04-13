@@ -3,6 +3,7 @@ from flask_mail import Mail, Message
 from dotenv import dotenv_values
 from Model import *
 
+# for provider configs
 get_env = dotenv_values(".env")  
 
 app = Flask(__name__)
