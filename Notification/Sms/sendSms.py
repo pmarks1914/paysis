@@ -12,6 +12,7 @@ app = Flask(__name__)
 def send_notification_sms(to, subject):
     with app.app_context():
         try:
+            # implementation goes here
             return True
         except Exception as e:
             print(f"Failed to send sms: {e}")
