@@ -29,7 +29,6 @@ def fileUpload(request, *args):
         if request.method == 'PATCH':
             for arg in args:
                 file_data = Fileupload.updateFile(file.filename, file.filename, 'test', arg)
-                # print(arg, file.filename)
                 # save it to the folder
                 upload_folder = 'static/uploads'
                 file.save( upload_folder + '/' + file.filename)

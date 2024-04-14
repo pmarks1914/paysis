@@ -5,6 +5,7 @@ import hashlib
 from locale import currency
 import re
 from textwrap import indent
+from time import timezone
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import defer, undefer, relationship, load_only, sessionmaker
@@ -12,7 +13,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from Helper.helper import generate_transaction_referance
 from Settings import app
-from datetime import datetime
+from datetime import datetime, timedelta
 # from flask_script import Manager
 from flask_migrate import Migrate
 import json
@@ -439,7 +440,11 @@ class Code(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
     def createCode(_email, _code, _type):
+        # cron job to delete expired used user sessions
+        Code.objects.filter(update_at__lte=(timezone.now()-timedelta(seconds=5)) ).delete()
+        
         _id = str(uuid.uuid4())
         new_data = Code( account=_email, code=_code, type=_type, id=_id )
         try:
