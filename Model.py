@@ -459,7 +459,11 @@ class Code(db.Model):
             db.session.close()
             pass
         return new_data
-
+    
+    def delete_code(_id):
+        is_successful = Code.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
 class Fileupload(db.Model):
     __tablename__ = 'file'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
