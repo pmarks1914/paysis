@@ -498,7 +498,6 @@ class Fileupload(db.Model):
             db.session.close()
         return new_data
 
-
     def updateFile(file, description, business, id):
         # print(">>>>>>>>", id, db.session.query(Fileupload).filter(id==id).first())
         new_data = Fileupload.query.filter_by(id=id).first()
@@ -511,3 +510,6 @@ class Fileupload(db.Model):
         # db.session.close()
         return alchemy_to_json(new_data)
 
+    def delete_file(_id):
+        is_successful = False
+        return bool(is_successful)
