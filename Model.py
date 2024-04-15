@@ -511,5 +511,6 @@ class Fileupload(db.Model):
         return alchemy_to_json(new_data)
 
     def delete_file(_id):
-        is_successful = False
+        is_successful = Fileupload.query.filter_by(id=_id).delete()
+        db.session.commit()
         return bool(is_successful)
