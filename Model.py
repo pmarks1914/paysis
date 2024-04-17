@@ -328,7 +328,9 @@ class Apikey(db.Model):
             'data': new_data_object,
             'pagination': pagination_data
         }
-
+    
+    def delete_key(_id):
+        pass
 
 transaction_type = ["Credit", "Debit"]
 
