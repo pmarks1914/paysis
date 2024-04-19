@@ -246,7 +246,6 @@ class Business(db.Model):
             return "user already"
 
     def updateBusinessById(request, id):
-
         new_data = Business.query.filter_by(business_id=id).first()
         print(request)
         if request['business_name'] :
@@ -329,7 +328,12 @@ class Apikey(db.Model):
             'data': new_data_object,
             'pagination': pagination_data
         }
-
+    
+    def delete_key(_id):
+        is_successful = Apikey.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
+        pass
 
 transaction_type = ["Credit", "Debit"]
 
@@ -440,7 +444,6 @@ class Code(db.Model):
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
-
     def createCode(_email, _code, _type):
         # cron job to delete expired used user sessions
         Code.objects.filter(update_at__lte=(timezone.now()-timedelta(seconds=5)) ).delete()
@@ -479,7 +482,6 @@ class Fileupload(db.Model):
         if new_data:
             return alchemy_to_json(new_data)
     
-
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
         # print(_id, _file)
