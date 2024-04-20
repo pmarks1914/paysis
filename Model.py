@@ -292,7 +292,9 @@ class Settlement(db.Model):
     # business_id
     
     def delete_settlement(_id):
-        pass
+        is_successful = Settlement.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
 
 class Apikey(db.Model):
     __tablename__ = 'apikey'
