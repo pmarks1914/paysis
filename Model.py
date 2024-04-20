@@ -290,6 +290,9 @@ class Settlement(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     business = db.relationship('Business', back_populates='settlement')
     # business_id
+    
+    def delete_settlement(_id):
+        pass
 
 class Apikey(db.Model):
     __tablename__ = 'apikey'
