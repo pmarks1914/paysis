@@ -338,7 +338,6 @@ class Apikey(db.Model):
         is_successful = Apikey.query.filter_by(id=_id).delete()
         db.session.commit()
         return bool(is_successful)
-        pass
 
 transaction_type = ["Credit", "Debit"]
 
