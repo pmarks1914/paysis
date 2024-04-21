@@ -277,7 +277,9 @@ class Kyc(db.Model):
     business = db.relationship('Business', back_populates='kyc')
 
     def delete_kyc(_id):
-        pass
+        is_successful = Kyc.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
 
 class Settlement(db.Model):
     __tablename__ = 'settlement'
