@@ -290,6 +290,11 @@ class Settlement(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     business = db.relationship('Business', back_populates='settlement')
     # business_id
+    
+    def delete_settlement(_id):
+        is_successful = Settlement.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
 
 class Apikey(db.Model):
     __tablename__ = 'apikey'
@@ -333,7 +338,6 @@ class Apikey(db.Model):
         is_successful = Apikey.query.filter_by(id=_id).delete()
         db.session.commit()
         return bool(is_successful)
-        pass
 
 transaction_type = ["Credit", "Debit"]
 
