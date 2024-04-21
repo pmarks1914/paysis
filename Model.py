@@ -276,6 +276,9 @@ class Kyc(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     business = db.relationship('Business', back_populates='kyc')
 
+    def delete_kyc(_id):
+        pass
+
 class Settlement(db.Model):
     __tablename__ = 'settlement'
     settlement_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
