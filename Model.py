@@ -476,6 +476,13 @@ class Code(db.Model):
         is_successful = Code.query.filter_by(id=_id).delete()
         db.session.commit()
         return bool(is_successful)
+
+    # get transacttion by ID
+    def getCodeById(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # Query the database with pagination
+        pass
+
 class Fileupload(db.Model):
     __tablename__ = 'file'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
