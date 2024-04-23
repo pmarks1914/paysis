@@ -311,7 +311,17 @@ class Settlement(db.Model):
         new_data = pagination.items
         # Render nested objects
         new_data_object = [alchemy_to_json(item) for item in new_data]
-
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
 
 class Apikey(db.Model):
     __tablename__ = 'apikey'
