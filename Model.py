@@ -301,6 +301,12 @@ class Settlement(db.Model):
         db.session.commit()
         return bool(is_successful)
 
+    # get Settlement by ID
+    def getSettlementById(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # Query the database with pagination
+        pass
+
 class Apikey(db.Model):
     __tablename__ = 'apikey'
     apikey_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
