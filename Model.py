@@ -305,7 +305,13 @@ class Settlement(db.Model):
     def getSettlementById(id, page=1, per_page=10):        
         # Determine the page and number of items per page from the request (if provided)
         # Query the database with pagination
-        pass
+        pagination = Settlement.query.filter_by(settlement_id=id).paginate(page=page, per_page=per_page, error_out=False)
+
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+
 
 class Apikey(db.Model):
     __tablename__ = 'apikey'
