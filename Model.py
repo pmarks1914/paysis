@@ -437,7 +437,7 @@ class Transaction(db.Model):
 
     # get transacttion by business
     def getTransactionByBusinesId(id, page=1, per_page=10): 
-        pagination = Transaction.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        pagination = Transaction.query.filter_by(transaction_id=id).paginate(page=page, per_page=per_page, error_out=False)
         # Extract the items for the current page
         new_data = pagination.items
         # Render nested objects
