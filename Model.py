@@ -322,6 +322,10 @@ class Settlement(db.Model):
             'data': new_data_object,
             'pagination': pagination_data
         }
+    
+    # get Settlement by business
+    def getSettlementByBusinesId(id, page=1, per_page=10): 
+        pass
 
 class Apikey(db.Model):
     __tablename__ = 'apikey'
