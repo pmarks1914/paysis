@@ -325,6 +325,7 @@ class Settlement(db.Model):
     
     # get Settlement by business
     def getSettlementByBusinesId(id, page=1, per_page=10): 
+        pagination = Settlement.query.filter_by(settlement_id=id).paginate(page=page, per_page=per_page, error_out=False)
         pass
 
 class Apikey(db.Model):
