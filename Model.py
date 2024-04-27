@@ -301,6 +301,47 @@ class Settlement(db.Model):
         db.session.commit()
         return bool(is_successful)
 
+    # get Settlement by ID
+    def getSettlementById(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # Query the database with pagination
+        pagination = Settlement.query.filter_by(settlement_id=id).paginate(page=page, per_page=per_page, error_out=False)
+
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+    
+    # get Settlement by business
+    def getSettlementByBusinesId(id, page=1, per_page=10): 
+        pagination = Settlement.query.filter_by(settlement_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+
 class Apikey(db.Model):
     __tablename__ = 'apikey'
     apikey_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -339,6 +380,25 @@ class Apikey(db.Model):
             'pagination': pagination_data
         }
     
+    # get apikey by business
+    def getApikeyByBusinesId(id, page=1, per_page=10): 
+        pagination = Apikey.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+
     def delete_key(_id):
         is_successful = Apikey.query.filter_by(id=_id).delete()
         db.session.commit()
@@ -396,7 +456,7 @@ class Transaction(db.Model):
 
     # get transacttion by business
     def getTransactionByBusinesId(id, page=1, per_page=10): 
-        pagination = Transaction.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        pagination = Transaction.query.filter_by(transaction_id=id).paginate(page=page, per_page=per_page, error_out=False)
         # Extract the items for the current page
         new_data = pagination.items
         # Render nested objects
@@ -476,6 +536,29 @@ class Code(db.Model):
         is_successful = Code.query.filter_by(id=_id).delete()
         db.session.commit()
         return bool(is_successful)
+
+    # get transacttion by ID
+    def getCodeById(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # Query the database with pagination
+        pagination = Code.query.filter_by(id=id).paginate(page=page, per_page=per_page, error_out=False)
+
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+
 class Fileupload(db.Model):
     __tablename__ = 'file'
     id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
