@@ -588,6 +588,10 @@ class Fileupload(db.Model):
             'current_page': page,
             'total_pages': pagination.pages
         }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
 
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
