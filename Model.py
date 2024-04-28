@@ -574,6 +574,10 @@ class Fileupload(db.Model):
         if new_data:
             return alchemy_to_json(new_data)
     
+    # get file by business
+    def getFileByBusinesId(id, page=1, per_page=10): 
+        pass
+
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
         # print(_id, _file)
