@@ -576,6 +576,7 @@ class Fileupload(db.Model):
     
     # get file by business
     def getFileByBusinesId(id, page=1, per_page=10): 
+        pagination = Apikey.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
         pass
 
     def createFile(_file, _description, _business):
