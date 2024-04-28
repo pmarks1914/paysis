@@ -577,7 +577,17 @@ class Fileupload(db.Model):
     # get file by business
     def getFileByBusinesId(id, page=1, per_page=10): 
         pagination = Apikey.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
-        pass
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
 
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
