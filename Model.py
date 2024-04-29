@@ -287,7 +287,21 @@ class Kyc(db.Model):
         # Query the database with pagination
         pagination = Kyc.query.filter_by(Kyc_id=id).paginate(page=page, per_page=per_page, error_out=False)
 
-        
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
     
 class Settlement(db.Model):
     __tablename__ = 'settlement'
