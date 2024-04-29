@@ -281,6 +281,12 @@ class Kyc(db.Model):
         db.session.commit()
         return bool(is_successful)
 
+    # get kyc by ID
+    def getKycById(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # Query the database with pagination
+        pass
+    
 class Settlement(db.Model):
     __tablename__ = 'settlement'
     settlement_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
