@@ -327,7 +327,7 @@ class Settlement(db.Model):
     def getSettlementById(id, page=1, per_page=10):        
         # Determine the page and number of items per page from the request (if provided)
         # Query the database with pagination
-        pagination = Settlement.query.filter_by(settlement_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        pagination = Settlement.query.filter_by(business=id).paginate(page=page, per_page=per_page, error_out=False)
 
         # Extract the items for the current page
         new_data = pagination.items
