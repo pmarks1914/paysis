@@ -511,8 +511,8 @@ class Transaction(db.Model):
                 db.session.close()
             return new_data
     
-    def updateTransaction(_status):
-            new_data = Fileupload.query.filter_by(id=id).first()
+    def updateTransaction(_status, _id):
+            new_data = Fileupload.query.filter_by(id=_id).first()
             new_data.status = _status
             try:
                 # Start a new session
