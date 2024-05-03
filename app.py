@@ -313,5 +313,25 @@ def transactionBusiness(id):
     else:
         return {"code": 400, "message": 'Failed' }
 
+@app.route('/transaction/update/<string:id>', methods=['PATCH'])
+def transactionBusiness(id):
+    if request.method == 'PATCH':
+        try:
+            request_data = request.get_json()
+            Transaction.updateTransaction(request_data['status'], id)
+            # print("mfs callback >>> ", request_data )
+            msg = {
+                "code": 200,
+                "message": 'Successful',
+                "data": request_data
+            }
+            response = Response( json.dumps(msg), status=200, mimetype='application/json')
+            return response 
+        except Exception as e:
+            # print(e)
+            return {"code": 203, "message": 'Failed', "error": str(e)}
+    else:
+        return {"code": 400, "message": 'Failed' }
+
 if __name__ == "__main__":
     app.run(debug=True, port=5001)

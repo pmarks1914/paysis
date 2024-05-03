@@ -281,6 +281,28 @@ class Kyc(db.Model):
         db.session.commit()
         return bool(is_successful)
 
+    # get kyc by ID
+    def getKycById(id, page=1, per_page=10):        
+        # Determine the page and number of items per page from the request (if provided)
+        # Query the database with pagination
+        pagination = Kyc.query.filter_by(Kyc_id=id).paginate(page=page, per_page=per_page, error_out=False)
+
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+    
 class Settlement(db.Model):
     __tablename__ = 'settlement'
     settlement_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
@@ -305,7 +327,7 @@ class Settlement(db.Model):
     def getSettlementById(id, page=1, per_page=10):        
         # Determine the page and number of items per page from the request (if provided)
         # Query the database with pagination
-        pagination = Settlement.query.filter_by(settlement_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        pagination = Settlement.query.filter_by(business=id).paginate(page=page, per_page=per_page, error_out=False)
 
         # Extract the items for the current page
         new_data = pagination.items
@@ -489,8 +511,8 @@ class Transaction(db.Model):
                 db.session.close()
             return new_data
     
-    def updateTransaction(_status):
-            new_data = Fileupload.query.filter_by(id=id).first()
+    def updateTransaction(_status, _id):
+            new_data = Fileupload.query.filter_by(id=_id).first()
             new_data.status = _status
             try:
                 # Start a new session
@@ -574,6 +596,25 @@ class Fileupload(db.Model):
         if new_data:
             return alchemy_to_json(new_data)
     
+    # get file by business
+    def getFileByBusinesId(id, page=1, per_page=10): 
+        pagination = Apikey.query.filter_by(apikey_id=id).paginate(page=page, per_page=per_page, error_out=False)
+        # Extract the items for the current page
+        new_data = pagination.items
+        # Render nested objects
+        new_data_object = [alchemy_to_json(item) for item in new_data]
+        # Prepare pagination information to be returned along with the data
+        pagination_data = {
+            'total': pagination.total,
+            'per_page': per_page,
+            'current_page': page,
+            'total_pages': pagination.pages
+        }
+        return {
+            'data': new_data_object,
+            'pagination': pagination_data
+        }
+
     def createFile(_file, _description, _business):
         _id = str(uuid.uuid4())
         # print(_id, _file)
