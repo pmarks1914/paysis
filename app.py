@@ -319,7 +319,6 @@ def transactionBusiness(id):
         try:
             request_data = request.get_json()
             Transaction.updateTransaction(request_data['status'], id)
-            # print("mfs callback >>> ", request_data )
             msg = {
                 "code": 200,
                 "message": 'Successful',
@@ -328,7 +327,6 @@ def transactionBusiness(id):
             response = Response( json.dumps(msg), status=200, mimetype='application/json')
             return response 
         except Exception as e:
-            # print(e)
             return {"code": 203, "message": 'Failed', "error": str(e)}
     else:
         return {"code": 400, "message": 'Failed' }
