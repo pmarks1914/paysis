@@ -269,8 +269,8 @@ def uploadUpdate(id):
 
 @app.route('/file/delete/<string:id>', methods=['DELETE'])
 def uploadUpdate(id):
-    if request.method == 'GET':
-        return Fileupload.getFileById(id)
+    if request.method == 'DELETE':
+        return Fileupload.delete_file(id)
 
 @app.route('/business/<string:id>', methods=['PATCH', 'GET'])
 def business(id):
