@@ -270,7 +270,8 @@ def uploadUpdate(id):
 @app.route('/file/delete/<string:id>', methods=['DELETE'])
 def fileDelete(id):
     if request.method == 'DELETE':
-        return Fileupload.delete_file(id)
+        # return Fileupload.delete_file(id)
+        pass
     else:
         pass
 
@@ -281,6 +282,13 @@ def business(id):
     if request.method == 'PATCH':
         request_data = request.get_json()
         return Business.updateBusinessById(request_data, id)
+
+@app.route('/business/delete/<string:id>', methods=['DELETE'])
+def businessDelete(id):
+    if request.method == 'DELETE':
+        return Business.delete_file(id)
+    else:
+        pass
 
 @app.route('/transaction/<string:id>', methods=['GET'])
 def transaction(id):
