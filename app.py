@@ -271,7 +271,6 @@ def uploadUpdate(id):
 def fileDelete(id):
     if request.method == 'DELETE':
         return Fileupload.delete_file(id)
-        pass
     else:
         pass
 
