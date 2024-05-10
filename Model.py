@@ -263,6 +263,11 @@ class Business(db.Model):
         db.session.commit()
         # db.session.close()
         return alchemy_to_json(new_data)
+
+    def delete_business(_id):
+        is_successful = Business.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
 class Kyc(db.Model):
     __tablename__ = 'kyc'
     kyc_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
