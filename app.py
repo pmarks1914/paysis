@@ -270,7 +270,7 @@ def uploadUpdate(id):
 @app.route('/file/delete/<string:id>', methods=['DELETE'])
 def fileDelete(id):
     if request.method == 'DELETE':
-        # return Fileupload.delete_file(id)
+        return Fileupload.delete_file(id)
         pass
     else:
         pass
