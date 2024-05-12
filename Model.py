@@ -191,7 +191,9 @@ class User(db.Model):
         db.session.commit()
 
     def delete_user(_id):
-        pass
+        is_successful = User.query.filter_by(id=_id).delete()
+        db.session.commit()
+        return bool(is_successful)
 class Business(db.Model):
     __tablename__ = 'business'
     business_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
