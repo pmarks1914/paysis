@@ -189,6 +189,9 @@ class User(db.Model):
             # print(password)
             
         db.session.commit()
+
+    def delete_user(_id):
+        pass
 class Business(db.Model):
     __tablename__ = 'business'
     business_id = db.Column(db.String(36), primary_key=True, default=str(uuid.uuid4()), unique=True, nullable=False)
